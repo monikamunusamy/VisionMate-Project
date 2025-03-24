@@ -19,12 +19,6 @@
         android:contentDescription="Captured Image" />
 
     <Button
-        android:id="@+id/button_open_camera"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Open Camera" />
-
-    <Button
         android:id="@+id/button_open_internal_camera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
