@@ -8,6 +8,8 @@ import android.graphics.*
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -25,7 +27,8 @@ import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 
 class MainActivity : AppCompatActivity() {
-
+    private lateinit var locationManager: LocationManager
+    private val locationPermissionCode = 2
     private lateinit var labels: List<String>
     private val colors = listOf(
         Color.BLUE, Color.GREEN, Color.RED, Color.CYAN, Color.GRAY,
@@ -126,7 +129,7 @@ class MainActivity : AppCompatActivity() {
                 intent.putExtra("location", location)
                 startActivity(intent)
             } else {
-                Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show()
+                getCurrentLocation()
             }
         }
 
@@ -153,6 +156,44 @@ class MainActivity : AppCompatActivity() {
         ) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 101)
         }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), locationPermissionCode)
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION), locationPermissionCode)
+        }
+    }
+
+    private fun getCurrentLocation() {
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Toast.makeText(this, "Location permissions are not granted", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val location: Location? = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+        if (location != null) {
+            val currentLocation = "${location.latitude}, ${location.longitude}"
+            openMapActivity(currentLocation)
+        } else {
+            Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openMapActivity(location: String) {
+        val intent = Intent(this, MapsActivity::class.java)
+        intent.putExtra("location", location)
+        startActivity(intent)
     }
 
     @Suppress("MissingPermission")

@@ -3,11 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.programminghut.realtime_object">
 
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Permissions -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
@@ -21,19 +22,25 @@
         android:theme="@style/Theme.Realtime_object"
         tools:targetApi="31">
 
+        <!-- Google Maps API key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="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"/>
+            android:value="AIzaSyBIkkyM2kpt2udkkVdgf85HZn6NEgcjW2I" />
 
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Maps Activity -->
+        <activity
+            android:name=".MapsActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
