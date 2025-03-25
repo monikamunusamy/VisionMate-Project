@@ -18,6 +18,15 @@
         android:layout_marginBottom="16dp"
         android:contentDescription="Captured Image" />
 
+    
+
+
+    <Button
+        android:id="@+id/button_open_map"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open Map" />
+
     <Button
         android:id="@+id/button_open_internal_camera"
         android:layout_width="match_parent"
@@ -29,7 +38,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Open External Camera" />
-
+        
+    <EditText
+        android:id="@+id/editText_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter location to navigate"
+        android:imeOptions="actionDone"
+        android:inputType="text" />
     <Button
         android:id="@+id/button_get_coffee"
         android:layout_width="match_parent"

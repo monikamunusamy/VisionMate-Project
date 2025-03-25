@@ -1,6 +1,6 @@
 package com.programminghut.realtime_object
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -8,16 +8,15 @@ import android.graphics.*
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.provider.MediaStore
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.view.Surface
 import android.view.TextureView
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.view.inputmethod.EditorInfo
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.programminghut.realtime_object.ml.SsdMobilenetV11Metadata1
 import org.tensorflow.lite.support.common.FileUtil
@@ -27,59 +26,54 @@ import org.tensorflow.lite.support.image.ops.ResizeOp
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var labels: List<String>
-    var colors = listOf<Int>(
-        Color.BLUE, Color.GREEN, Color.RED, Color.CYAN, Color.GRAY, Color.BLACK,
-        Color.DKGRAY, Color.MAGENTA, Color.YELLOW, Color.RED)
-    val paint = Paint()
-    lateinit var imageProcessor: ImageProcessor
-    lateinit var bitmap: Bitmap
-    lateinit var imageView: ImageView
-    lateinit var cameraDevice: CameraDevice
-    lateinit var handler: Handler
-    lateinit var cameraManager: CameraManager
-    lateinit var textureView: TextureView
-    lateinit var model: SsdMobilenetV11Metadata1
+    private lateinit var labels: List<String>
+    private val colors = listOf(
+        Color.BLUE, Color.GREEN, Color.RED, Color.CYAN, Color.GRAY,
+        Color.BLACK, Color.DKGRAY, Color.MAGENTA, Color.YELLOW, Color.RED
+    )
+    private val paint = Paint()
+    private lateinit var imageProcessor: ImageProcessor
+    private lateinit var bitmap: Bitmap
+    private lateinit var imageView: ImageView
+    private lateinit var cameraDevice: CameraDevice
+    private lateinit var handler: Handler
+    private lateinit var cameraManager: CameraManager
+    private lateinit var textureView: TextureView
+    private lateinit var model: SsdMobilenetV11Metadata1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        get_permission()
+        getPermission()
 
         labels = FileUtil.loadLabels(this, "labels.txt")
-        imageProcessor = ImageProcessor.Builder().add(ResizeOp(300, 300, ResizeOp.ResizeMethod.BILINEAR)).build()
+        imageProcessor = ImageProcessor.Builder()
+            .add(ResizeOp(300, 300, ResizeOp.ResizeMethod.BILINEAR))
+            .build()
         model = SsdMobilenetV11Metadata1.newInstance(this)
         val handlerThread = HandlerThread("videoThread")
         handlerThread.start()
         handler = Handler(handlerThread.looper)
 
         imageView = findViewById(R.id.imageView)
-
         textureView = findViewById(R.id.textureView)
-        textureView.surfaceTextureListener = object: TextureView.SurfaceTextureListener {
-            override fun onSurfaceTextureAvailable(p0: SurfaceTexture, p1: Int, p2: Int) {
-                // Kamerayı aç or similar settings for object detection
-            }
+        val editTextLocation = findViewById<EditText>(R.id.editText_location)
+
+        textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+            override fun onSurfaceTextureAvailable(p0: SurfaceTexture, p1: Int, p2: Int) {}
             override fun onSurfaceTextureSizeChanged(p0: SurfaceTexture, p1: Int, p2: Int) {}
-
-            override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
-                return false
-            }
-
+            override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean = false
             override fun onSurfaceTextureUpdated(p0: SurfaceTexture) {
                 bitmap = textureView.bitmap!!
                 var image = TensorImage.fromBitmap(bitmap)
                 image = imageProcessor.process(image)
-
                 val outputs = model.process(image)
                 val locations = outputs.locationsAsTensorBuffer.floatArray
                 val classes = outputs.classesAsTensorBuffer.floatArray
                 val scores = outputs.scoresAsTensorBuffer.floatArray
-
-                var mutable = bitmap.copy(Bitmap.Config.ARGB_8888, true)
+                val mutable = bitmap.copy(Bitmap.Config.ARGB_8888, true)
                 val canvas = Canvas(mutable)
-
                 val h = mutable.height
                 val w = mutable.width
                 paint.textSize = h / 15f
@@ -88,88 +82,107 @@ class MainActivity : AppCompatActivity() {
                 scores.forEachIndexed { index, fl ->
                     x = index * 4
                     if (fl > 0.5) {
-                        paint.setColor(colors[index])
+                        paint.color = colors[index % colors.size]
                         paint.style = Paint.Style.STROKE
-                        canvas.drawRect(RectF(locations[x + 1] * w, locations[x] * h, locations[x + 3] * w, locations[x + 2] * h), paint)
+                        canvas.drawRect(
+                            RectF(
+                                locations[x + 1] * w,
+                                locations[x] * h,
+                                locations[x + 3] * w,
+                                locations[x + 2] * h
+                            ), paint
+                        )
                         paint.style = Paint.Style.FILL
-                        canvas.drawText(labels[classes[index].toInt()] + " " + fl.toString(), locations[x + 1] * w, locations[x] * h, paint)
+                        canvas.drawText(
+                            "${labels[classes[index].toInt()]} $fl",
+                            locations[x + 1] * w,
+                            locations[x] * h,
+                            paint
+                        )
                     }
                 }
-
                 imageView.setImageBitmap(mutable)
             }
         }
 
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        // Internal camera button listener
         findViewById<Button>(R.id.button_open_internal_camera).setOnClickListener {
-            open_camera()
+            openCamera()
         }
 
-        // External camera button listener
         findViewById<Button>(R.id.button_open_external_camera).setOnClickListener {
-            openExternalCamera() // Symbolic method
+            Toast.makeText(this, "External Camera not implemented", Toast.LENGTH_SHORT).show()
         }
 
-        // Get coffee button listener
         findViewById<Button>(R.id.button_get_coffee).setOnClickListener {
-            getCoffee() // Symbolic method
+            Toast.makeText(this, "Getting Coffee...", Toast.LENGTH_SHORT).show()
         }
+
+        findViewById<Button>(R.id.button_open_map).setOnClickListener {
+            val location = editTextLocation.text.toString()
+            if (location.isNotEmpty()) {
+                val intent = Intent(this, MapsActivity::class.java)
+                intent.putExtra("location", location)
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        editTextLocation.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val location = editTextLocation.text.toString()
+                if (location.isNotEmpty()) {
+                    val intent = Intent(this, MapsActivity::class.java)
+                    intent.putExtra("location", location)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this, "Please enter a location", Toast.LENGTH_SHORT).show()
+                }
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun getPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 101)
+        }
+    }
+
+    @Suppress("MissingPermission")
+    private fun openCamera() {
+        cameraManager.openCamera(cameraManager.cameraIdList[0],
+            object : CameraDevice.StateCallback() {
+                override fun onOpened(p0: CameraDevice) {
+                    cameraDevice = p0
+                    val surfaceTexture = textureView.surfaceTexture
+                    val surface = Surface(surfaceTexture)
+                    val captureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+                    captureRequest.addTarget(surface)
+                    cameraDevice.createCaptureSession(
+                        listOf(surface),
+                        object : CameraCaptureSession.StateCallback() {
+                            override fun onConfigured(session: CameraCaptureSession) {
+                                session.setRepeatingRequest(captureRequest.build(), null, null)
+                            }
+                            override fun onConfigureFailed(session: CameraCaptureSession) {}
+                        }, handler
+                    )
+                }
+                override fun onDisconnected(p0: CameraDevice) {}
+                override fun onError(p0: CameraDevice, p1: Int) {}
+            }, handler
+        )
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         model.close()
-    }
-
-    @SuppressLint("MissingPermission")
-    fun open_camera() {
-        cameraManager.openCamera(cameraManager.cameraIdList[0], object: CameraDevice.StateCallback() {
-            override fun onOpened(p0: CameraDevice) {
-                cameraDevice = p0
-
-                var surfaceTexture = textureView.surfaceTexture
-                var surface = Surface(surfaceTexture)
-
-                var captureRequest = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-                captureRequest.addTarget(surface)
-
-                cameraDevice.createCaptureSession(listOf(surface), object: CameraCaptureSession.StateCallback() {
-                    override fun onConfigured(p0: CameraCaptureSession) {
-                        p0.setRepeatingRequest(captureRequest.build(), null, null)
-                    }
-                    override fun onConfigureFailed(p0: CameraCaptureSession) {}
-                }, handler)
-            }
-
-            override fun onDisconnected(p0: CameraDevice) {}
-
-            override fun onError(p0: CameraDevice, p1: Int) {}
-        }, handler)
-    }
-
-    fun openExternalCamera() {
-        // Symbolic function: Implement this to open the external camera or
-        // add other functionality later
-        Toast.makeText(this, "Open External Camera (yet to implement)", Toast.LENGTH_SHORT).show()
-    }
-
-    fun getCoffee() {
-        // Symbolic function: Implement coffee-related functionality later
-        Toast.makeText(this, "Getting Coffee (yet to implement)", Toast.LENGTH_SHORT).show()
-    }
-
-    fun get_permission() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(android.Manifest.permission.CAMERA), 101)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            get_permission()
-        }
+        super.onDestroy()
     }
 }
