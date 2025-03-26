@@ -4,70 +4,71 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Camera Preview -->
+    <!-- Camera preview -->
     <TextureView
         android:id="@+id/textureView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Object Detection Overlay -->
+    <!-- Object detection overlay -->
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitXY" />
+        android:scaleType="fitXY"
+        android:contentDescription="Detected Image" />
 
-    <!-- External Camera WebView -->
+    <!-- WebView for external camera -->
     <WebView
         android:id="@+id/webview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
 
-    <!-- Controls Panel -->
-    <ScrollView
+    <!-- Bottom control panel -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
         android:layout_gravity="bottom"
         android:background="#AA000000">
 
-        <LinearLayout
+        
+
+        <Button
+            android:id="@+id/button_open_internal_camera"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:text="Open Internal Camera" />
 
-            <Button
-                android:id="@+id/button_open_internal_camera"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Open Internal Camera" />
+        <Button
+            android:id="@+id/button_open_external_camera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open External Camera" />
 
-            <Button
-                android:id="@+id/button_open_external_camera"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Open External Camera" />
+        <Button
+            android:id="@+id/button_get_coffee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Get Coffee" />
 
-            <Button
-                android:id="@+id/button_get_coffee"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Get Coffee" />
+        <EditText
+            android:id="@+id/editText_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter location to navigate"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:background="@android:color/white"
+            android:padding="10dp"
+            android:textColor="@android:color/black" />
+        <Button
+            android:id="@+id/button_open_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Open Map Navigation" />
+    </LinearLayout>
 
-            <EditText
-                android:id="@+id/editText_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter location to navigate"
-                android:imeOptions="actionDone"
-                android:inputType="text" />
-
-            <Button
-                android:id="@+id/button_open_map"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Open Map" />
-        </LinearLayout>
-    </ScrollView>
 </FrameLayout>
