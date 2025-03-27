@@ -20,7 +20,7 @@
 
     <!-- WebView for external camera -->
     <WebView
-        android:id="@+id/webview"
+        android:id="@+id/webView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />
@@ -69,6 +69,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Open Map Navigation" />
+        
+        <Button
+            android:id="@+id/button_voice_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Speak Command" />
+
     </LinearLayout>
 
 </FrameLayout>

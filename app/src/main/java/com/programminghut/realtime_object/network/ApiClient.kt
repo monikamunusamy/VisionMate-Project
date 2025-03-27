@@ -9,7 +9,7 @@ object ApiClient {
     fun getClient(baseUrl: String): Retrofit {
         if (retrofit == null) {
             retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)
+                .baseUrl(baseUrl)  // The base URL is passed as a parameter
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
         }
