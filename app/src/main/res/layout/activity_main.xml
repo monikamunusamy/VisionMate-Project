@@ -1,81 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rootLayout"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:padding="24dp">
 
-    <!-- Camera preview -->
-    <TextureView
-        android:id="@+id/textureView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!-- Object detection overlay -->
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="fitXY"
-        android:contentDescription="Detected Image" />
-
-    <!-- WebView for external camera -->
-    <WebView
-        android:id="@+id/webView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
-
-    <!-- Bottom control panel -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:layout_gravity="bottom"
-        android:background="#AA000000">
+        android:gravity="center">
 
-        
-
-        <Button
+        <!-- Internal Camera Button -->
+        <LinearLayout
             android:id="@+id/button_open_internal_camera"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Internal Camera" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
 
-        <Button
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/rounded_button"
+                android:src="@drawable/ic_camera"
+                android:contentDescription="Internal Camera"
+                android:scaleType="centerInside" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Internal Camera"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- External Camera Button -->
+        <LinearLayout
             android:id="@+id/button_open_external_camera"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open External Camera" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
 
-        <Button
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/rounded_button"
+                android:src="@drawable/ic_external_camera"
+                android:contentDescription="External Camera"
+                android:scaleType="centerInside" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="External Camera"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Get Coffee Button -->
+        <LinearLayout
             android:id="@+id/button_get_coffee"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Get Coffee" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
 
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/rounded_button"
+                android:src="@drawable/ic_coffee"
+                android:contentDescription="Get Coffee"
+                android:scaleType="centerInside" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Get Coffee"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Location Input -->
         <EditText
             android:id="@+id/editText_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter location to navigate"
-            android:imeOptions="actionDone"
-            android:inputType="text"
-            android:background="@android:color/white"
+            android:background="@android:drawable/editbox_background"
             android:padding="10dp"
-            android:textColor="@android:color/black" />
-        <Button
+            android:layout_marginTop="24dp"
+            android:textColor="@android:color/black"
+            android:textColorHint="#666666" />
+
+        <!-- Open Map Button -->
+        <LinearLayout
             android:id="@+id/button_open_map"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Map Navigation" />
-        
-        <Button
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/rounded_button"
+                android:src="@drawable/ic_map"
+                android:contentDescription="Open Map"
+                android:scaleType="centerInside" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Map Navigation"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Voice Command Button -->
+        <LinearLayout
             android:id="@+id/button_voice_input"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Speak Command" />
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp">
+
+            <ImageButton
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:background="@drawable/rounded_button"
+                android:src="@drawable/ic_voice"
+                android:contentDescription="Speak"
+                android:scaleType="centerInside" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Speak"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
 
     </LinearLayout>
-
-</FrameLayout>
+</ScrollView>
