@@ -1,6 +1,7 @@
 package com.programminghut.realtime_object.network
 
 
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -11,4 +12,6 @@ interface ApiService {
 
     @POST("/start_camera")
     fun startCamera(): Call<Void>
+    @POST("/getcoffee")
+    fun getCoffee(@Body selectedObject: SelectedObject): Call<ResponseBody>
 }

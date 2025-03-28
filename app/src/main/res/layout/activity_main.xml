@@ -64,30 +64,8 @@
         </LinearLayout>
 
         <!-- Get Coffee Button -->
-        <LinearLayout
-            android:id="@+id/button_get_coffee"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_marginTop="16dp">
-
-            <ImageButton
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:background="@drawable/rounded_button"
-                android:src="@drawable/ic_coffee"
-                android:contentDescription="Get Coffee"
-                android:scaleType="centerInside" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Get Coffee"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
+        
+        
 
         <!-- Location Input -->
         <EditText

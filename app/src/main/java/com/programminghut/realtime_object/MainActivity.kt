@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         editTextLocation = findViewById(R.id.editText_location)
         val btnInternalCamera: View = findViewById(R.id.button_open_internal_camera)
         val btnExternalCamera: View = findViewById(R.id.button_open_external_camera)
-        val btnGetCoffee: View = findViewById(R.id.button_get_coffee)
+
         val btnOpenMap: View = findViewById(R.id.button_open_map)
         val btnSpeak: View = findViewById(R.id.button_voice_input)
 
@@ -46,9 +46,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ExternalCameraActivity::class.java))
         }
 
-        btnGetCoffee.setOnClickListener {
-            speakOut("Getting you some coffee!")
-        }
+
 
         btnOpenMap.setOnClickListener {
             val location = editTextLocation.text.toString()

@@ -1,21 +1,30 @@
 package com.programminghut.realtime_object
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.Bundle
+import android.os.Vibrator
+import android.speech.RecognizerIntent
+import android.speech.RecognitionListener
+import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
 import android.view.View
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import android.speech.tts.TextToSpeech
 import java.util.*
 
 class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var webView: WebView
     private lateinit var textToSpeech: TextToSpeech
+    private lateinit var speechRecognizer: SpeechRecognizer
+    private lateinit var vibrator: Vibrator
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,6 +33,31 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
         // Initialize TextToSpeech
         textToSpeech = TextToSpeech(this, this)
+
+        // Initialize SpeechRecognizer
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onError(error: Int) {
+                speak("Error recognizing speech")
+            }
+
+            override fun onResults(results: Bundle?) {
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                val recognizedText = matches?.get(0)
+                recognizedText?.let {
+                    speak("Starting hand navigation for $it")
+                    startHandNavigation(it)
+                }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        })
 
         // Initialize WebView
         webView = findViewById(R.id.webView)
@@ -47,6 +81,15 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
         // Enable immersive mode for full-screen experience
         enableImmersiveMode()
+
+        // Initialize Vibrator
+        vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+
+        // Set up externalcamera button click listener
+        val externalCameraButton: Button = findViewById(R.id.button_open_external_camera)
+        externalCameraButton.setOnClickListener {
+            promptForObject()
+        }
     }
 
     override fun onInit(status: Int) {
@@ -71,6 +114,25 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
                 )
     }
 
+    private fun promptForObject() {
+        speak("Which object would you like to select?")
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Please say the object")
+        try {
+            startActivityForResult(intent, 1001)
+        } catch (e: ActivityNotFoundException) {
+            speak("Speech recognition not supported on this device")
+        }
+    }
+
+    private fun startHandNavigation(objectName: String) {
+        // Logic to start hand navigation for the recognized object
+        // Use the vibrator to provide haptic feedback
+        vibrator.vibrate(500) // Vibrate for 500 milliseconds
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
@@ -82,5 +144,6 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
         super.onDestroy()
         textToSpeech.stop()
         textToSpeech.shutdown()
+        speechRecognizer.destroy()
     }
 }
