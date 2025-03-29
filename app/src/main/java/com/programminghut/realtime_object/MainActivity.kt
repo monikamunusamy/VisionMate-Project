@@ -26,6 +26,11 @@ class MainActivity : AppCompatActivity() {
         editTextLocation = findViewById(R.id.editText_location)
         val btnInternalCamera: View = findViewById(R.id.button_open_internal_camera)
         val btnExternalCamera: View = findViewById(R.id.button_open_external_camera)
+        val btnOpenList: View = findViewById(R.id.button_open_list)
+        btnOpenList.setOnClickListener {
+            speakOut("Opening your list")
+            startActivity(Intent(this, ListActivity::class.java))
+        }
 
         val btnOpenMap: View = findViewById(R.id.button_open_map)
         val btnSpeak: View = findViewById(R.id.button_voice_input)

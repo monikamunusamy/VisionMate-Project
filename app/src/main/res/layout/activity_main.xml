@@ -131,6 +131,14 @@
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"/>
         </LinearLayout>
+            <Button
+                android:id="@+id/button_open_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="List"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center_horizontal" />
+
 
     </LinearLayout>
 </ScrollView>
