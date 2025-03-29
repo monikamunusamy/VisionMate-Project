@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        editTextLocation = findViewById(R.id.editText_location)
+
         val btnInternalCamera: View = findViewById(R.id.button_open_internal_camera)
         val btnExternalCamera: View = findViewById(R.id.button_open_external_camera)
         val btnOpenList: View = findViewById(R.id.button_open_list)

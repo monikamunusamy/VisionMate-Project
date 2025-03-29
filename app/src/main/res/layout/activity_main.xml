@@ -9,136 +9,171 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center_horizontal"
+        android:layout_marginTop="32dp">
 
-        <!-- Internal Camera Button -->
-        <LinearLayout
-            android:id="@+id/button_open_internal_camera"
+        <!-- App Title -->
+        <TextView
+            android:id="@+id/text_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_marginTop="16dp">
-
-            <ImageButton
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:background="@drawable/rounded_button"
-                android:src="@drawable/ic_camera"
-                android:contentDescription="Internal Camera"
-                android:scaleType="centerInside" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Internal Camera"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-
-        <!-- External Camera Button -->
-        <LinearLayout
-            android:id="@+id/button_open_external_camera"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_marginTop="16dp">
-
-            <ImageButton
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:background="@drawable/rounded_button"
-                android:src="@drawable/ic_external_camera"
-                android:contentDescription="External Camera"
-                android:scaleType="centerInside" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="External Camera"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
-        </LinearLayout>
-
-        <!-- Get Coffee Button -->
-        
-        
-
-        <!-- Location Input -->
-        <EditText
-            android:id="@+id/editText_location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter location to navigate"
-            android:background="@android:drawable/editbox_background"
-            android:padding="10dp"
-            android:layout_marginTop="24dp"
+            android:text="VisionMate"
+            android:textSize="26sp"
+            android:textStyle="bold"
             android:textColor="@android:color/black"
-            android:textColorHint="#666666" />
+            android:layout_marginBottom="24dp" />
 
-        <!-- Open Map Button -->
+        <!-- First Row: Internal and External Camera -->
         <LinearLayout
-            android:id="@+id/button_open_map"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="16dp">
+            android:layout_marginBottom="16dp">
 
-            <ImageButton
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:background="@drawable/rounded_button"
-                android:src="@drawable/ic_map"
-                android:contentDescription="Open Map"
-                android:scaleType="centerInside" />
-
-            <TextView
+            <!-- Internal Camera -->
+            <LinearLayout
+                android:id="@+id/button_open_internal_camera"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Map Navigation"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="32dp"
+                android:background="@drawable/frame_button"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:src="@drawable/ic_camera"
+                    android:contentDescription="Internal Camera"
+                    android:scaleType="centerInside" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Internal Camera"
+                    android:textColor="@android:color/holo_purple"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+            <!-- External Camera -->
+            <LinearLayout
+                android:id="@+id/button_open_external_camera"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/frame_button"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:src="@drawable/ic_external_camera"
+                    android:contentDescription="External Camera"
+                    android:scaleType="centerInside" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="External Camera"
+                    android:textColor="@android:color/holo_purple"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Voice Command Button -->
+        <!-- Second Row: Map Navigation and List -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="32dp">
+
+            <!-- Map Navigation -->
+            <LinearLayout
+                android:id="@+id/button_open_map"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="32dp"
+                android:background="@drawable/frame_button"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:src="@drawable/ic_map"
+                    android:contentDescription="Map Navigation"
+                    android:scaleType="centerInside" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Map Navigation"
+                    android:textColor="@android:color/holo_purple"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+
+            <!-- List -->
+            <LinearLayout
+                android:id="@+id/button_open_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:background="@drawable/frame_button"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="72dp"
+                    android:layout_height="72dp"
+                    android:src="@drawable/ic_list"
+                    android:contentDescription="List"
+                    android:scaleType="centerInside" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="List"
+                    android:textColor="@android:color/holo_purple"
+                    android:textSize="14sp"
+                    android:layout_marginTop="8dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Voice Assistant -->
         <LinearLayout
             android:id="@+id/button_voice_input"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="32dp">
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/frame_button"
+            android:padding="20dp">
 
-            <ImageButton
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:background="@drawable/rounded_button"
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:src="@drawable/ic_voice"
-                android:contentDescription="Speak"
+                android:contentDescription="Voice Assistant"
                 android:scaleType="centerInside" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Speak"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"/>
+                android:text="Voice Assistant"
+                android:textColor="@android:color/holo_purple"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
         </LinearLayout>
-            <Button
-                android:id="@+id/button_open_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="List"
-                android:layout_marginTop="16dp"
-                android:layout_gravity="center_horizontal" />
-
 
     </LinearLayout>
 </ScrollView>
