@@ -8,6 +8,7 @@ import android.os.Looper
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
@@ -97,6 +98,9 @@ class ListActivity : AppCompatActivity() {
             val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
             val userSpeech = result?.get(0)?.lowercase(Locale.getDefault()) ?: ""
 
+            Log.d("VoiceCommand", "User said: $userSpeech")
+            Toast.makeText(this, "Heard: $userSpeech", Toast.LENGTH_SHORT).show()
+
             if (isWaitingForItem) {
                 if (userSpeech.isNotBlank()) {
                     itemList.add(userSpeech)
@@ -107,14 +111,13 @@ class ListActivity : AppCompatActivity() {
                         askForItem()
                     }
                 }
-
             } else {
                 when {
-                    "add" in userSpeech || "more" in userSpeech -> {
+                    listOf("add", "more").any { it in userSpeech } -> {
                         askForItem()
                     }
 
-                    "list" in userSpeech || "my items" in userSpeech -> {
+                    listOf("list", "my items", "show", "what do i have").any { it in userSpeech } -> {
                         if (itemList.isEmpty()) {
                             speak("Your list is currently empty.") {
                                 askNextAction()
@@ -126,7 +129,7 @@ class ListActivity : AppCompatActivity() {
                         }
                     }
 
-                    "close" in userSpeech || "exit" in userSpeech -> {
+                    listOf("close", "exit", "quit", "back", "main menu", "close the list").any { it in userSpeech } -> {
                         speak("Closing the list and returning to main menu.") {
                             val intent = Intent(this, MainActivity::class.java)
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

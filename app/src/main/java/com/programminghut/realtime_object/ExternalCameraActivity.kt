@@ -48,7 +48,9 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
         // Initialize TextToSpeech
         textToSpeech = TextToSpeech(this, this)
-        speakWithDelay("Opening the camera, please wait.", 0) // Immediately speak this message
+
+        // Immediately speak the opening message
+        speakWithDelay("Opening the camera, please wait.", 0)
 
         // Initialize WebView
         webView = findViewById(R.id.webView)
@@ -80,7 +82,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = textToSpeech.setLanguage(Locale.US) // You can change this to Locale.forLanguageTag("tr-TR") for Turkish
+            val result = textToSpeech.setLanguage(Locale.US) // You can change to Locale.forLanguageTag("tr-TR") for Turkish
             if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                 Log.e("TTS", "Language not supported")
             }
@@ -97,6 +99,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
     private fun speakWithDelay(message: String, delay: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
+            Log.d("TTS", "Attempting to speak: $message")
             speak(message)
         }, delay)
     }
