@@ -9,7 +9,6 @@ import android.os.Looper
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
-import android.util.Log
 import android.view.View
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -48,9 +47,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
         // Initialize TextToSpeech
         textToSpeech = TextToSpeech(this, this)
-
-        // Immediately speak the opening message
-        speakWithDelay("Opening the camera, please wait.", 0)
+        speakWithDelay("Opening the camera, please wait.", 0) // Speak this message immediately
 
         // Initialize WebView
         webView = findViewById(R.id.webView)
@@ -67,7 +64,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
                 if (url == "http://192.168.188.225:8000/video_feed") {
                     isVideoFeedLoaded = true
                     speakWithDelay("You are now viewing the external camera feed.", 0)
-                    promptForObjectWithDelay(0) // Prompt for object selection immediately
+                    promptForObjectWithDelay(3000) // Prompt for object selection after 3 seconds
                 }
             }
         }
@@ -82,24 +79,19 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = textToSpeech.setLanguage(Locale.US) // You can change to Locale.forLanguageTag("tr-TR") for Turkish
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "Language not supported")
-            }
-        } else {
-            Log.e("TTS", "Initialization failed")
+            textToSpeech.language = Locale.US
         }
     }
 
     private fun speak(message: String) {
         speechQueue.add(message)
         if (textToSpeech.isSpeaking) return
+
         processSpeechQueue()
     }
 
     private fun speakWithDelay(message: String, delay: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
-            Log.d("TTS", "Attempting to speak: $message")
             speak(message)
         }, delay)
     }
@@ -137,12 +129,9 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
     private fun promptForObject() {
         if (!isVideoFeedLoaded) return // Ensure video feed is loaded before prompting
 
-        Log.d("ExternalCameraActivity", "Prompting for object...") // Log when prompting begins
-        speak("Please say the label of the object you want to select.")
-
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault()) // Change to Turkish if needed
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Please say the label of the object you want to select.")
         }
         try {
@@ -160,7 +149,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
     private fun confirmObjectSelection(objectName: String) {
         speak("You selected the object: $objectName. Checking for detection.")
-        if (isObjectDetected(objectName)) { // Check if the object is detected
+        if (isObjectDetected(objectName)) {
             speak("The object is detected. Starting navigation.")
             startHandNavigation(objectName)
         } else {
@@ -169,23 +158,14 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
     }
 
     private fun isObjectDetected(objectName: String): Boolean {
-        return try {
-            val url = "http://192.168.188.225:8000/check_detection?object=${objectName}"
-            val connection = URL(url).openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connect()
-
-            val responseCode = connection.responseCode
-            responseCode == HttpURLConnection.HTTP_OK // Check if response is OK
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
+        // Replace with the actual logic to check detection from your backend
+        // For demonstration, let's assume a mock detection logic:
+        return true // Simulating that the object is detected
     }
 
     private fun startHandNavigation(objectName: String) {
         speak("Navigation is starting for the selected object: $objectName.")
         Toast.makeText(this, "Navigating to object: $objectName", Toast.LENGTH_SHORT).show()
-        // Further navigation logic would go here
+        // Implement further navigation logic here
     }
 }

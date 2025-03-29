@@ -8,7 +8,6 @@ import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
@@ -24,14 +23,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
+
         val btnInternalCamera: View = findViewById(R.id.button_open_internal_camera)
         val btnExternalCamera: View = findViewById(R.id.button_open_external_camera)
         val btnOpenList: View = findViewById(R.id.button_open_list)
-        btnOpenList.setOnClickListener {
-            speakOut("Opening your list")
-            startActivity(Intent(this, ListActivity::class.java))
-        }
-
         val btnOpenMap: View = findViewById(R.id.button_open_map)
         val btnSpeak: View = findViewById(R.id.button_voice_input)
 
@@ -51,11 +46,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ExternalCameraActivity::class.java))
         }
 
-
+        btnOpenList.setOnClickListener {
+            speakOut("Opening your list")
+            startActivity(Intent(this, ListActivity::class.java))
+        }
 
         btnOpenMap.setOnClickListener {
             val location = editTextLocation.text.toString()
             if (location.isNotEmpty()) {
+                speakOut("Opening map for $location")
                 navigateToLocation(location)
             } else {
                 Toast.makeText(this, "Enter a location", Toast.LENGTH_SHORT).show()
@@ -103,8 +102,9 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(this, ExternalCameraActivity::class.java))
                 }
 
-                "coffee" in command -> {
-                    speakOut("Getting you some coffee!")
+                "open list" in command || "show list" in command -> {
+                    speakOut("Opening your list")
+                    startActivity(Intent(this, ListActivity::class.java))
                 }
 
                 "navigate to" in command -> {
