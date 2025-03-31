@@ -1,179 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@drawable/bg_gradient"
     android:padding="24dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="32dp">
+        android:text="VisionMate"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="24dp" />
 
-        <!-- App Title -->
-        <TextView
-            android:id="@+id/text_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="VisionMate"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="24dp" />
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:rowCount="2"
+        android:alignmentMode="alignMargins"
+        android:useDefaultMargins="true">
 
-        <!-- First Row: Internal and External Camera -->
+        <!-- Internal Camera -->
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="16dp">
-
-            <!-- Internal Camera -->
-            <LinearLayout
-                android:id="@+id/button_open_internal_camera"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_marginEnd="32dp"
-                android:background="@drawable/frame_button"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:src="@drawable/ic_camera"
-                    android:contentDescription="Internal Camera"
-                    android:scaleType="centerInside" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Internal Camera"
-                    android:textColor="@android:color/holo_purple"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"/>
-            </LinearLayout>
-
-            <!-- External Camera -->
-            <LinearLayout
-                android:id="@+id/button_open_external_camera"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/frame_button"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:src="@drawable/ic_external_camera"
-                    android:contentDescription="External Camera"
-                    android:scaleType="centerInside" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="External Camera"
-                    android:textColor="@android:color/holo_purple"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Second Row: Map Navigation and List -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="32dp">
-
-            <!-- Map Navigation -->
-            <LinearLayout
-                android:id="@+id/button_open_map"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_marginEnd="32dp"
-                android:background="@drawable/frame_button"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:src="@drawable/ic_map"
-                    android:contentDescription="Map Navigation"
-                    android:scaleType="centerInside" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Map Navigation"
-                    android:textColor="@android:color/holo_purple"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"/>
-            </LinearLayout>
-
-            <!-- List -->
-            <LinearLayout
-                android:id="@+id/button_open_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:background="@drawable/frame_button"
-                android:padding="16dp">
-
-                <ImageView
-                    android:layout_width="72dp"
-                    android:layout_height="72dp"
-                    android:src="@drawable/ic_list"
-                    android:contentDescription="List"
-                    android:scaleType="centerInside" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="List"
-                    android:textColor="@android:color/holo_purple"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Voice Assistant -->
-        <LinearLayout
-            android:id="@+id/button_voice_input"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/button_open_internal_camera"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@drawable/rounded_button"
             android:orientation="vertical"
             android:gravity="center"
-            android:layout_marginBottom="32dp"
-            android:background="@drawable/frame_button"
-            android:padding="20dp">
+            android:padding="12dp">
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/ic_voice"
-                android:contentDescription="Voice Assistant"
-                android:scaleType="centerInside" />
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_camera"
+                android:tint="@android:color/black" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Voice Assistant"
-                android:textColor="@android:color/holo_purple"
-                android:textSize="16sp"
+                android:text="Internal Camera"
+                android:textColor="#9C27B0"
                 android:textStyle="bold"
                 android:layout_marginTop="8dp"/>
         </LinearLayout>
 
-    </LinearLayout>
-</ScrollView>
+        <!-- External Camera -->
+        <LinearLayout
+            android:id="@+id/button_open_external_camera"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@drawable/rounded_button"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_external_camera"
+                android:tint="@android:color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="External Camera"
+                android:textColor="#9C27B0"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <!-- Map -->
+        <LinearLayout
+            android:id="@+id/button_open_map"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@drawable/rounded_button"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_map"
+                android:tint="@android:color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Map"
+                android:textColor="#9C27B0"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+        <!-- List -->
+        <LinearLayout
+            android:id="@+id/button_open_list"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@drawable/rounded_button"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_list"
+                android:tint="@android:color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="List"
+                android:textColor="#9C27B0"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+    </GridLayout>
+
+    <!-- Voice Assistant (large centered icon) -->
+    <ImageView
+        android:id="@+id/button_voice_input"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginTop="24dp"
+        android:src="@drawable/ic_voice"
+        android:tint="@android:color/black"/>
+</LinearLayout>

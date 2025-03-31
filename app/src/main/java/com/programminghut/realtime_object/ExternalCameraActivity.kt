@@ -1,5 +1,6 @@
 package com.programminghut.realtime_object
 
+
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -9,14 +10,17 @@ import android.os.Looper
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.util.Log
 import android.view.View
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.programminghut.realtime_object.R
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
@@ -28,14 +32,14 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
     private val speechQueue: Queue<String> = LinkedList()
     private var isVideoFeedLoaded = false // Flag to check if video feed is loaded
 
-    private val speechRecognizerLauncher =
+    private val speechRecognizerLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 val data = result.data
                 val matches = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                 val recognizedText = matches?.get(0)
                 recognizedText?.let {
-                    confirmObjectSelection(it)
+                    sendObjectNameToFlask(it)
                 }
             }
         }
@@ -47,7 +51,9 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
         // Initialize TextToSpeech
         textToSpeech = TextToSpeech(this, this)
-        speakWithDelay("Opening the camera, please wait.", 0) // Speak this message immediately
+
+        // Immediately speak the opening message
+        speakWithDelay("Opening the camera, please wait.", 0)
 
         // Initialize WebView
         webView = findViewById(R.id.webView)
@@ -64,7 +70,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
                 if (url == "http://192.168.188.225:8000/video_feed") {
                     isVideoFeedLoaded = true
                     speakWithDelay("You are now viewing the external camera feed.", 0)
-                    promptForObjectWithDelay(3000) // Prompt for object selection after 3 seconds
+                    promptForObjectWithDelay(0) // Prompt for object selection immediately
                 }
             }
         }
@@ -79,19 +85,24 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            textToSpeech.language = Locale.US
+            val result = textToSpeech.setLanguage(Locale.US) // Change to Locale.forLanguageTag("tr-TR") for Turkish
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "Language not supported")
+            }
+        } else {
+            Log.e("TTS", "Initialization failed")
         }
     }
 
     private fun speak(message: String) {
         speechQueue.add(message)
         if (textToSpeech.isSpeaking) return
-
         processSpeechQueue()
     }
 
     private fun speakWithDelay(message: String, delay: Long) {
         Handler(Looper.getMainLooper()).postDelayed({
+            Log.d("TTS", "Attempting to speak: $message")
             speak(message)
         }, delay)
     }
@@ -129,9 +140,12 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
     private fun promptForObject() {
         if (!isVideoFeedLoaded) return // Ensure video feed is loaded before prompting
 
+        Log.d("ExternalCameraActivity", "Prompting for object...")
+        speak("Please say the label of the object you want to select.")
+
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault()) // Change to Turkish if needed
             putExtra(RecognizerIntent.EXTRA_PROMPT, "Please say the label of the object you want to select.")
         }
         try {
@@ -147,25 +161,30 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
         }, delay)
     }
 
-    private fun confirmObjectSelection(objectName: String) {
-        speak("You selected the object: $objectName. Checking for detection.")
-        if (isObjectDetected(objectName)) {
-            speak("The object is detected. Starting navigation.")
-            startHandNavigation(objectName)
-        } else {
-            speak("The object: $objectName was not detected.")
-        }
-    }
+    // Function to send the recognized object name to the Flask application
+    private fun sendObjectNameToFlask(objectName: String) {
+        speak("You selected the object: $objectName. Sending to server.")
+        val url = "http://192.168.188.225:8000/activate_bracelet"
+        val requestBody = """{"object_name": "$objectName"}"""
 
-    private fun isObjectDetected(objectName: String): Boolean {
-        // Replace with the actual logic to check detection from your backend
-        // For demonstration, let's assume a mock detection logic:
-        return true // Simulating that the object is detected
-    }
+        Thread {
+            try {
+                val connection = URL(url).openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.doOutput = true
+                connection.outputStream.write(requestBody.toByteArray())
 
-    private fun startHandNavigation(objectName: String) {
-        speak("Navigation is starting for the selected object: $objectName.")
-        Toast.makeText(this, "Navigating to object: $objectName", Toast.LENGTH_SHORT).show()
-        // Implement further navigation logic here
+                val responseCode = connection.responseCode
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    speak("Object name sent successfully. Guiding your hand.")
+                } else {
+                    speak("Failed to send object name.")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                speak("Error occurred while sending object name.")
+            }
+        }.start()
     }
 }
