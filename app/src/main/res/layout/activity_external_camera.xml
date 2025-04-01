@@ -9,5 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    
+    <!-- Voice Assistant Button (Mic Icon) -->
+    <ImageButton
+        android:id="@+id/btnVoiceAssistant"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Voice Assistant"
+        android:src="@drawable/ic_voice" />
 </RelativeLayout>

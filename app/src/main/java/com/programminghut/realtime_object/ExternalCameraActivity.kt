@@ -1,190 +1,360 @@
 package com.programminghut.realtime_object
 
-
-import android.annotation.SuppressLint
-import android.content.ActivityNotFoundException
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import android.os.*
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
-import android.view.View
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.ImageButton
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.programminghut.realtime_object.R
+import org.json.JSONArray
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
+import kotlin.concurrent.thread
 
 class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var webView: WebView
-    private lateinit var textToSpeech: TextToSpeech
-    private val speechQueue: Queue<String> = LinkedList()
-    private var isVideoFeedLoaded = false // Flag to check if video feed is loaded
+    private lateinit var tts: TextToSpeech
+    private var ttsReady = false
+    private val voiceInputCode = 101
+    private var detectedObjects = listOf<String>()
+    private var isWaitingForSelection = false
+    private var isAskingForNextAction = false
+    private var isAskingForLiveObjects = false
+    private val handler = Handler(Looper.getMainLooper())
+    private var lastAnnouncedObjects: Set<String> = emptySet()
+    private var isDetectionActive = true
 
-    private val speechRecognizerLauncher: ActivityResultLauncher<Intent> =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val data = result.data
-                val matches = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                val recognizedText = matches?.get(0)
-                recognizedText?.let {
-                    sendObjectNameToFlask(it)
-                }
-            }
-        }
-
-    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_external_camera)
 
-        // Initialize TextToSpeech
-        textToSpeech = TextToSpeech(this, this)
+        tts = TextToSpeech(this, this)
+        setupWebView()
 
-        // Immediately speak the opening message
-        speakWithDelay("Opening the camera, please wait.", 0)
-
-        // Initialize WebView
-        webView = findViewById(R.id.webView)
-        webView.webViewClient = object : WebViewClient() {
-            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                super.onReceivedError(view, request, error)
-                val errorMessage = "Unable to load external camera feed."
-                Toast.makeText(applicationContext, errorMessage, Toast.LENGTH_LONG).show()
-                speak(errorMessage)
-            }
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                if (url == "http://192.168.188.225:8000/video_feed") {
-                    isVideoFeedLoaded = true
-                    speakWithDelay("You are now viewing the external camera feed.", 0)
-                    promptForObjectWithDelay(0) // Prompt for object selection immediately
+        // Mic Button
+        findViewById<ImageButton>(R.id.btnVoiceAssistant).setOnClickListener {
+            if (ttsReady) {
+                isAskingForLiveObjects = true
+                speak("Voice assistant activated. Please speak now.") {
+                    waitAndStartVoiceInput()
                 }
+            } else {
+                Toast.makeText(this, "Voice assistant not ready yet", Toast.LENGTH_SHORT).show()
             }
         }
-
-        // Enable JavaScript
-        webView.settings.javaScriptEnabled = true
-        webView.loadUrl("http://192.168.188.225:8000/video_feed") // Ensure this URL is correct
-
-        // Enable immersive mode for full-screen experience
-        enableImmersiveMode()
     }
 
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
-            val result = textToSpeech.setLanguage(Locale.US) // Change to Locale.forLanguageTag("tr-TR") for Turkish
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "Language not supported")
-            }
+            tts.language = Locale.US
+            ttsReady = true
+            speak("Welcome. Initializing object detection system.")
         } else {
-            Log.e("TTS", "Initialization failed")
+            Toast.makeText(this, "TTS initialization failed", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun speak(message: String) {
-        speechQueue.add(message)
-        if (textToSpeech.isSpeaking) return
-        processSpeechQueue()
-    }
-
-    private fun speakWithDelay(message: String, delay: Long) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            Log.d("TTS", "Attempting to speak: $message")
-            speak(message)
-        }, delay)
-    }
-
-    private fun processSpeechQueue() {
-        val message = speechQueue.poll()
-        message?.let {
-            val params = Bundle().apply {
-                putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, message)
+    private fun setupWebView() {
+        webView = findViewById(R.id.webView)
+        webView.settings.javaScriptEnabled = true
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                if (url?.contains("video_feed") == true && ttsReady) {
+                    handler.postDelayed({
+                        speak("Camera feed is active. Starting object detection.") {
+                            startObjectDetection()
+                        }
+                    }, 2000)
+                }
             }
-            textToSpeech.speak(it, TextToSpeech.QUEUE_FLUSH, params, null)
-            textToSpeech.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-                override fun onStart(utteranceId: String?) {}
 
-                override fun onDone(utteranceId: String?) {
-                    processSpeechQueue() // Process the next message in the queue
+            override fun onReceivedError(view: WebView?, req: WebResourceRequest?, err: WebResourceError?) {
+                runOnUiThread {
+                    speak("Error: Camera feed failed to load. Please check the connection.")
+                }
+            }
+        }
+        webView.loadUrl("http://192.168.188.225:8000/video_feed")
+    }
+
+    private fun startObjectDetection() {
+        isDetectionActive = true
+        fetchDetectedObjects()
+    }
+
+    private fun stopObjectDetection() {
+        isDetectionActive = false
+        handler.removeCallbacksAndMessages(null)
+    }
+
+    private fun fetchDetectedObjects() {
+        if (!isDetectionActive) return
+
+        thread {
+            try {
+                val url = URL("http://192.168.188.225:8000/detected_objects")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.apply {
+                    requestMethod = "GET"
+                    connectTimeout = 3000
+                    readTimeout = 5000
                 }
 
-                override fun onError(utteranceId: String?) {}
-            })
-        }
-    }
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val jsonArray = JSONArray(response)
+                val objects = mutableListOf<String>()
+                for (i in 0 until jsonArray.length()) {
+                    objects.add(jsonArray.getString(i).trim().lowercase(Locale.US))
+                }
 
-    private fun enableImmersiveMode() {
-        val decorView = window.decorView
-        decorView.systemUiVisibility =
-            (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-    }
-
-    private fun promptForObject() {
-        if (!isVideoFeedLoaded) return // Ensure video feed is loaded before prompting
-
-        Log.d("ExternalCameraActivity", "Prompting for object...")
-        speak("Please say the label of the object you want to select.")
-
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault()) // Change to Turkish if needed
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Please say the label of the object you want to select.")
-        }
-        try {
-            speechRecognizerLauncher.launch(intent)
-        } catch (e: ActivityNotFoundException) {
-            Toast.makeText(this, "Speech recognition is not supported on this device.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun promptForObjectWithDelay(delay: Long) {
-        Handler(Looper.getMainLooper()).postDelayed({
-            promptForObject()
-        }, delay)
-    }
-
-    // Function to send the recognized object name to the Flask application
-    private fun sendObjectNameToFlask(objectName: String) {
-        speak("You selected the object: $objectName. Sending to server.")
-        val url = "http://192.168.188.225:8000/activate_bracelet"
-        val requestBody = """{"object_name": "$objectName"}"""
-
-        Thread {
-            try {
-                val connection = URL(url).openConnection() as HttpURLConnection
-                connection.requestMethod = "POST"
-                connection.setRequestProperty("Content-Type", "application/json")
-                connection.doOutput = true
-                connection.outputStream.write(requestBody.toByteArray())
-
-                val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    speak("Object name sent successfully. Guiding your hand.")
-                } else {
-                    speak("Failed to send object name.")
+                runOnUiThread {
+                    if (objects.isNotEmpty()) {
+                        detectedObjects = objects
+                        lastAnnouncedObjects = objects.toSet()
+                        speak("Detected objects: ${objects.joinToString(", ")}. Which one would you like to grasp?") {
+                            isWaitingForSelection = true
+                            waitAndStartVoiceInput()
+                        }
+                        startLiveObjectPolling()
+                    } else {
+                        speak("No objects found. Trying again...") {
+                            handler.postDelayed({ fetchDetectedObjects() }, 3000)
+                        }
+                    }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
-                speak("Error occurred while sending object name.")
+                runOnUiThread {
+                    speak("Error detecting objects. Retrying...") {
+                        handler.postDelayed({ fetchDetectedObjects() }, 3000)
+                    }
+                }
             }
-        }.start()
+        }
+    }
+
+    private fun startLiveObjectPolling() {
+        handler.post(object : Runnable {
+            override fun run() {
+                if (!isDetectionActive) return
+
+                thread {
+                    try {
+                        val url = URL("http://192.168.188.225:8000/detected_objects")
+                        val connection = url.openConnection() as HttpURLConnection
+                        connection.requestMethod = "GET"
+
+                        val response = connection.inputStream.bufferedReader().use { it.readText() }
+                        val jsonArray = JSONArray(response)
+
+                        val currentObjects = mutableSetOf<String>()
+                        for (i in 0 until jsonArray.length()) {
+                            currentObjects.add(jsonArray.getString(i).trim().lowercase(Locale.US))
+                        }
+
+                        val newObjects = currentObjects - lastAnnouncedObjects
+                        if (newObjects.isNotEmpty()) {
+                            runOnUiThread {
+                                vibrate()
+                                val list = newObjects.joinToString(", ")
+                                speak("New objects detected: $list")
+                                lastAnnouncedObjects = currentObjects
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("LivePolling", "Error in live polling", e)
+                    }
+                    handler.postDelayed(this, 3000)
+                }
+            }
+        })
+    }
+
+    private fun vibrate() {
+        val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val effect = VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE)
+                vibrator.vibrate(effect)
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(300)
+            }
+        }
+    }
+
+    private fun speak(text: String, onDone: (() -> Unit)? = null) {
+        if (!ttsReady) return
+        val id = UUID.randomUUID().toString()
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onStart(utteranceId: String?) {}
+            override fun onDone(utteranceId: String?) { runOnUiThread { onDone?.invoke() } }
+            override fun onError(utteranceId: String?) { runOnUiThread { onDone?.invoke() } }
+        })
+        tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id)
+    }
+
+    private fun waitAndStartVoiceInput(delay: Long = 1000) {
+        handler.postDelayed({
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US)
+                putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now")
+            }
+            try {
+                startActivityForResult(intent, voiceInputCode)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Voice input failed: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }, delay)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != voiceInputCode || resultCode != Activity.RESULT_OK || data == null) return
+
+        val speech = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            ?.get(0)?.lowercase(Locale.getDefault()) ?: ""
+
+        when {
+            isWaitingForSelection -> handleObjectSelection(speech)
+            isAskingForNextAction -> handleNextAction(speech)
+            isAskingForLiveObjects -> {
+                isAskingForLiveObjects = false
+                handleLiveObjectQuery(speech)
+            }
+        }
+    }
+
+    private fun handleLiveObjectQuery(speech: String) {
+        if (speech.contains("what") || speech.contains("see") || speech.contains("list")) {
+            if (lastAnnouncedObjects.isNotEmpty()) {
+                val list = lastAnnouncedObjects.joinToString(", ")
+                speak("Currently I see the following objects: $list.")
+            } else {
+                speak("Let me check for objects. Please wait...") {
+                    fetchLiveObjectsForVoiceQuery()
+                }
+            }
+        } else {
+            speak("I didn't understand. You can ask, what do you see.")
+        }
+    }
+
+    private fun fetchLiveObjectsForVoiceQuery() {
+        thread {
+            try {
+                val url = URL("http://192.168.188.225:8000/detected_objects")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                val response = connection.inputStream.bufferedReader().use { it.readText() }
+                val jsonArray = JSONArray(response)
+
+                val objects = mutableListOf<String>()
+                for (i in 0 until jsonArray.length()) {
+                    objects.add(jsonArray.getString(i).trim().lowercase(Locale.US))
+                }
+
+                runOnUiThread {
+                    if (objects.isNotEmpty()) {
+                        lastAnnouncedObjects = objects.toSet()
+                        val list = objects.joinToString(", ")
+                        speak("I see the following objects right now: $list.")
+                    } else {
+                        speak("I still do not see any objects.")
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    speak("Failed to retrieve objects. Please try again.")
+                }
+            }
+        }
+    }
+
+    private fun handleObjectSelection(speech: String) {
+        val matched = detectedObjects.find { speech.contains(it.lowercase()) }
+        if (matched != null) {
+            isWaitingForSelection = false
+            speak("Selected $matched. Sending command...") {
+                sendObjectNameToFlask(matched)
+            }
+        } else {
+            speak("I didn't recognize that object. Please try again.") {
+                waitAndStartVoiceInput()
+            }
+        }
+    }
+
+    private fun handleNextAction(speech: String) {
+        isAskingForNextAction = false
+        when {
+            speech.contains("again") || speech.contains("yes") -> resetDetection()
+            speech.contains("exit") || speech.contains("no") -> speak("Closing object detection.") { finish() }
+            else -> {
+                speak("Please say 'again' to continue or 'exit' to stop.") {
+                    isAskingForNextAction = true
+                    waitAndStartVoiceInput()
+                }
+            }
+        }
+    }
+
+    private fun resetDetection() {
+        detectedObjects = emptyList()
+        lastAnnouncedObjects = emptySet()
+        speak("Resetting object detection. Please wait...") {
+            fetchDetectedObjects()
+        }
+    }
+
+    private fun sendObjectNameToFlask(name: String) {
+        thread {
+            try {
+                val url = URL("http://192.168.188.225:8000/activate_bracelet")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.apply {
+                    requestMethod = "POST"
+                    setRequestProperty("Content-Type", "application/json")
+                    doOutput = true
+                }
+
+                val jsonInputString = """{"object_name": "$name"}"""
+                connection.outputStream.use { os ->
+                    os.write(jsonInputString.toByteArray())
+                }
+
+                runOnUiThread {
+                    if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                        speak("Command sent successfully. $name will be grasped. Detect more objects or exit?") {
+                            isAskingForNextAction = true
+                            waitAndStartVoiceInput()
+                        }
+                    } else {
+                        speak("Failed to send command. Server error.")
+                    }
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    speak("Connection failed. Please check the network.")
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        stopObjectDetection()
+        tts.shutdown()
+        super.onDestroy()
     }
 }
