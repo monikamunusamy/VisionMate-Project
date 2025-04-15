@@ -17,10 +17,10 @@ VisionMate is an Android application designed to provide real-time object detect
 
 4. **Camera Features**:
    - Uses Camera2 API for capturing and processing live video streams.
-   - Supports both internal and external camera activities.
+   - **External Camera Integration**: The Flask backend is specifically used to handle external camera functionalities.
 
 5. **Interaction with Flask Backend**:
-   - The VisionMate Android app communicates with the Flask backend app for real-time data processing, including object and hand detection.
+   - The VisionMate Android app communicates with the Flask backend app for external camera processing and object detection.
    - The backend provides endpoints for video streaming, object detection, and activating a tactile bracelet for guidance.
 
 ---
@@ -72,23 +72,23 @@ VisionMate is an Android application designed to provide real-time object detect
 
 ## Integration Between Flask and Android App
 
-The VisionMate app communicates with the Flask backend via RESTful APIs. The key endpoints are:
+The VisionMate app communicates with the Flask backend via RESTful APIs for external camera functionalities. The key endpoints are:
 
 1. **Video Streaming**:
    - **URL**: `/video_feed`
-   - **Purpose**: Streams camera feed with real-time object and hand detection.
-   - **Usage**: Accessed by the Android app to display live feeds.
+   - **Purpose**: Streams external camera feed with real-time object and hand detection.
+   - **Usage**: Accessed by the Android app to display live feeds from the external camera.
 
 2. **Object Detection**:
    - **URL**: `/detected_objects`
    - **Method**: `GET`
-   - **Purpose**: Detects objects and hands in the current camera view.
+   - **Purpose**: Detects objects and hands in the current view from the external camera.
    - **Response**: JSON array of detected objects (e.g., `["hand", "bottle"]`).
 
 3. **Activate Tactile Bracelet**:
    - **URL**: `/activate_bracelet`
    - **Method**: `POST`
-   - **Purpose**: Guides the user toward a specific detected object.
+   - **Purpose**: Guides the user toward a specific detected object using external camera data.
    - **Request Body**: 
      ```json
      {
@@ -102,9 +102,9 @@ The VisionMate app communicates with the Flask backend via RESTful APIs. The key
 ## Flask Backend Details
 
 The Flask backend is implemented in the repository [Flask_app](https://github.com/Smgunlusoy/Flask_app). The main file is `app.py`, which contains the following features:
-- **YOLO Object Detection**: Integrates YOLOv5 and YOLOv8 models for real-time object and hand detection.
-- **Video Feed Service**: Streams the camera feed with detected objects highlighted.
-- **Tactile Bracelet Control**: Guides a tactile bracelet to a specified object using vibration feedback.
+- **YOLO Object Detection**: Integrates YOLOv5 and YOLOv8 models for real-time object and hand detection from an external camera.
+- **Video Feed Service**: Streams the external camera feed with detected objects highlighted.
+- **Tactile Bracelet Control**: Guides a tactile bracelet to a specified object using external camera data.
 - **RESTful API**: Provides endpoints for Android app communication.
 
 To run the Flask backend on localhost:
