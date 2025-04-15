@@ -129,6 +129,32 @@
         </LinearLayout>
     </GridLayout>
 
+        <!-- Barcode Scanner -->
+        <LinearLayout
+            android:id="@+id/button_barcode"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:background="@drawable/rounded_button"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_barcode"
+                android:tint="@android:color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scan Barcode"
+                android:textColor="#9C27B0"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
+
+
     <!-- Voice Assistant (large centered icon) -->
     <ImageView
         android:id="@+id/button_voice_input"
@@ -137,4 +163,7 @@
         android:layout_marginTop="24dp"
         android:src="@drawable/ic_voice"
         android:tint="@android:color/black"/>
+
+   
+
 </LinearLayout>

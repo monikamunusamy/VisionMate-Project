@@ -1,12 +1,12 @@
 package com.programminghut.realtime_object
 
-
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
@@ -25,18 +25,22 @@ class MainActivity : AppCompatActivity() {
 
 
 
+        // Initialize buttons
         val btnInternalCamera: View = findViewById(R.id.button_open_internal_camera)
         val btnExternalCamera: View = findViewById(R.id.button_open_external_camera)
         val btnOpenList: View = findViewById(R.id.button_open_list)
         val btnOpenMap: View = findViewById(R.id.button_open_map)
+        val btnBarcode: View = findViewById(R.id.button_barcode)
         val btnSpeak: View = findViewById(R.id.button_voice_input)
 
+        // Set up TextToSpeech
         textToSpeech = TextToSpeech(this) {
             if (it == TextToSpeech.SUCCESS) {
                 textToSpeech.language = Locale.US
             }
         }
 
+        // Button click listeners
         btnInternalCamera.setOnClickListener {
             speakOut("Opening internal camera")
             startActivity(Intent(this, InternalCameraActivity::class.java))
@@ -62,6 +66,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        btnBarcode.setOnClickListener {
+            speakOut("Opening barcode scanner")
+            startActivity(Intent(this, BarcodeActivity::class.java))
+        }
+
         btnSpeak.setOnClickListener {
             startVoiceInput()
         }
@@ -73,10 +82,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startVoiceInput() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-        intent.putExtra(
-            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-        )
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now")
         try {
@@ -92,6 +98,10 @@ class MainActivity : AppCompatActivity() {
             val result = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
             val command = result?.get(0)?.lowercase(Locale.getDefault()) ?: ""
 
+            // Debug: show what was heard
+            Log.d("VoiceCommand", "User said: $command")
+            Toast.makeText(this, "You said: $command", Toast.LENGTH_SHORT).show()
+
             when {
                 "internal camera" in command -> {
                     speakOut("Opening internal camera")
@@ -106,6 +116,11 @@ class MainActivity : AppCompatActivity() {
                 "open list" in command || "show list" in command -> {
                     speakOut("Opening your list")
                     startActivity(Intent(this, ListActivity::class.java))
+                }
+
+                "open barcode" in command || "scan barcode" in command || "barcode" in command -> {
+                    speakOut("Opening barcode scanner")
+                    startActivity(Intent(this, BarcodeActivity::class.java))
                 }
 
                 "navigate to" in command -> {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "348984655633",
+    "project_id": "visionmateapp",
+    "storage_bucket": "visionmateapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:348984655633:android:aea78d16ce965fe3c316b0",
+        "android_client_info": {
+          "package_name": "com.programminghut.realtime_object"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfhBwgOrc9BXA0au0FZPgTAWIrQQe2erQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

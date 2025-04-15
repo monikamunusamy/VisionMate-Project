@@ -80,7 +80,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
                 }
             }
         }
-        webView.loadUrl("http://192.168.188.225:8000/video_feed")
+        webView.loadUrl("http://192.168.134.225:8000/video_feed")
     }
 
     private fun startObjectDetection() {
@@ -98,7 +98,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
 
         thread {
             try {
-                val url = URL("http://192.168.188.225:8000/detected_objects")
+                val url = URL("http://192.168.134.225:8000/detected_objects")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
 
@@ -195,7 +195,7 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
     private fun sendObjectNameToFlask(name: String) {
         thread {
             try {
-                val url = URL("http://192.168.188.225:8000/activate_bracelet")
+                val url = URL("http://192.168.134.225:8000/activate_bracelet")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json")
@@ -204,13 +204,13 @@ class ExternalCameraActivity : AppCompatActivity(), TextToSpeech.OnInitListener 
                 val json = """{"object_name": "$name"}"""
                 connection.outputStream.use { it.write(json.toByteArray()) }
 
+                val responseCode = connection.responseCode
                 val responseText = connection.inputStream.bufferedReader().use { it.readText() }
-                val graspSuccess = responseText.contains("Grasp successful", true)
 
                 runOnUiThread {
-                    if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
                         speak("Guidance is ongoing. You may now move your hand toward the object.") {
-                            if (graspSuccess) {
+                            if (responseText.contains("Grasp successful", true)) {
                                 speak("Grasp successful. Do you want to detect another object or exit?") {
                                     isAskingForNextAction = true
                                     waitAndStartVoiceInput()
