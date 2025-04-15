@@ -72,7 +72,7 @@ VisionMate is an Android application designed to provide real-time object detect
 
 ## Integration Between Flask and Android App
 
-The VisionMate app communicates with the Flask backend via RESTful APIs for external camera functionalities. The key endpoints are:
+The VisionMate app communicates with the Flask backend via RESTful APIs for **external camera** functionalities. The key endpoints are:
 
 1. **Video Streaming**:
    - **URL**: `/video_feed`
