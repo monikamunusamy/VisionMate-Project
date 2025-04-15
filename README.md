@@ -1,6 +1,6 @@
 # VisionMate
 
-VisionMate is an Android application designed to provide real-time object detection and assistive functionalities using advanced machine learning models. The project leverages TensorFlow Lite for AI processing and integrates features such as Google Maps for location-based services.
+VisionMate is an Android application designed to enable blind and visually impaired individuals to interact with their surroundings more independently. The application provides real-time object detection, navigation, shopping list preparation, and bracelet navigation based on user input. VisionMate uses advanced machine learning models to detect objects in the environment, delivering this information to users through visual, auditory, or tactile feedback, ensuring a safer and more confident daily experience.
 
 ---
 
