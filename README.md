@@ -1,134 +1,340 @@
-# VisionMate
+# VisionMate 👁️📱
 
-VisionMate is an Android application designed to enable blind and visually impaired individuals to interact with their surroundings more independently. The application provides real-time object detection, navigation, shopping list preparation, and bracelet navigation based on user input. VisionMate uses advanced machine learning models to detect objects in the environment, delivering this information to users through visual, auditory, or tactile feedback, ensuring a safer and more confident daily experience.
+VisionMate is an Android application designed to enable blind and visually impaired individuals to interact with their surroundings more independently. The application provides real-time object detection, navigation, shopping list preparation, and bracelet navigation based on user input. VisionMate uses advanced machine learning models to detect objects in the environment, delivering this information to users through visual, auditory, or tactile feedback — ensuring a safer and more confident daily experience.
+
+This project was completed as part of our **Master's study project**, integrating Android development and Flask-based backend intelligence to solve real-world accessibility challenges.
 
 ---
 
-## Features
-1. **Real-Time Object Detection**:
+## ✨ Features
+
+1. **🔍 Real-Time Object Detection**
+
    - Utilizes TensorFlow Lite models for detecting objects and hands in real-time.
    - Supports custom object detection models for specific use cases.
 
-2. **Assistive Functionalities**:
+2. **🤖 Assistive Functionalities**
+
    - Designed to help users interact with the environment through object recognition.
 
-3. **Google Maps Integration**:
+3. **🗺️ Google Maps Integration**
+
    - Includes location-based services such as navigation and mapping.
 
-4. **Camera Features**:
-   - Uses Camera2 API for capturing and processing live video streams.
-   - **External Camera Integration**: The Flask backend is specifically used to handle external camera functionalities.
+4. **📸 Camera Features**
 
-5. **Interaction with Flask Backend**:
-   - The VisionMate Android app communicates with the Flask backend app for external camera processing and object detection.
+   - Uses Camera2 API for capturing and processing live video streams.
+   - **External Camera Integration**: Flask backend is used to handle external camera functionalities.
+
+5. **🔗 Interaction with Flask Backend**
+
+   - The VisionMate Android app communicates with the Flask backend for external camera processing and object detection.
    - The backend provides endpoints for video streaming, object detection, and activating a tactile bracelet for guidance.
 
 ---
 
-## Installation
+## 💪 Installation
 
-### Prerequisites
+### 📋 Prerequisites
+
 - [Android Studio Arctic Fox](https://developer.android.com/studio) or later.
 - An Android device with minimum SDK version **26**.
 - Python 3.8 or later for running the Flask backend.
 
-### Steps to Set Up the Flask Backend
+### ⚙️ Set Up the Flask Backend
+
 1. Clone the Flask backend repository:
+
    ```bash
    git clone https://github.com/Smgunlusoy/Flask_app.git
    cd Flask_app/tactile-guidance-backend
    ```
 
 2. Install dependencies:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. Run the Flask server:
+
    ```bash
    python app.py
    ```
 
-   The Flask server will start on `http://0.0.0.0:8000`. You can access it locally at `http://localhost:8000`.
+   
 
-### Steps to Set Up the Android App
+### 📲 Set Up the Android App
+
 1. Clone the VisionMate repository:
+
    ```bash
    git clone https://github.com/monikamunusamy/VisionMate-Project.git
    cd VisionMate-Project
    ```
 
 2. Open the project in Android Studio:
-   - Select `File -> Open` and navigate to the project directory.
+
+   - `File -> Open` → Select the project directory.
 
 3. Sync Gradle:
-   - Ensure that Gradle dependencies are properly synced before building the project.
+
+   - Make sure all Gradle dependencies sync successfully.
 
 4. Build and Run:
-   - Connect your Android device.
-   - Click on the `Run` button in Android Studio to deploy the app.
+
+   - Connect an Android device.
+   - Hit the `Run` button in Android Studio.
 
 ---
 
-## Integration Between Flask and Android App
+## 🔄 Flask ↔️ Android Integration
 
-The VisionMate app communicates with the Flask backend via RESTful APIs for **external camera** functionalities. The key endpoints are:
+The VisionMate app communicates with the Flask backend via RESTful APIs for **external camera** tasks:
 
-1. **Video Streaming**:
-   - **URL**: `/video_feed`
-   - **Purpose**: Streams external camera feed with real-time object and hand detection.
-   - **Usage**: Accessed by the Android app to display live feeds from the external camera.
+### 📺 `/video_feed`
 
-2. **Object Detection**:
-   - **URL**: `/detected_objects`
-   - **Method**: `GET`
-   - **Purpose**: Detects objects and hands in the current view from the external camera.
-   - **Response**: JSON array of detected objects (e.g., `["hand", "bottle"]`).
+- Streams real-time camera feed with object overlays.
 
-3. **Activate Tactile Bracelet**:
-   - **URL**: `/activate_bracelet`
-   - **Method**: `POST`
-   - **Purpose**: Guides the user toward a specific detected object using external camera data.
-   - **Request Body**: 
-     ```json
-     {
-       "object_name": "bottle"
-     }
-     ```
-   - **Response**: Confirmation message or error details.
+### 🧐 `/detected_objects`
 
----
+- Method: `GET`
+- Returns a JSON array of detected objects.
+  Example:
+  ```json
+  ["hand", "bottle"]
+  ```
 
-## Flask Backend Details
+### 🧴 `/activate_bracelet`
 
-The Flask backend is implemented in the repository [Flask_app](https://github.com/Smgunlusoy/Flask_app). The main file is `app.py`, which contains the following features:
-- **YOLO Object Detection**: Integrates YOLOv5 and YOLOv8 models for real-time object and hand detection from an external camera.
-- **Video Feed Service**: Streams the external camera feed with detected objects highlighted.
-- **Tactile Bracelet Control**: Guides a tactile bracelet to a specified object using external camera data.
-- **RESTful API**: Provides endpoints for Android app communication.
-
-To run the Flask backend on localhost:
-1. Start the server with `python app.py`.
-2. Access the default route (`http://localhost:8000/`) to verify the server is live.
+- Method: `POST`
+- Guides the bracelet toward a selected object.
+- Example request:
+  ```json
+  {
+    "object_name": "bottle"
+  }
+  ```
 
 ---
 
-## Contributors
-- **Monika Munusamy** - Project Lead
-- **Simge Ünlüsoy** - Developer and Contributor
+## 🔍 Flask Backend Details
+
+Backend repo: [Flask_app](https://github.com/Smgunlusoy/Flask_app)
+
+### Key Contributions and Technologies Used:
+
+- **Flask Web Framework**: Hosts all the RESTful API endpoints.
+- **YOLOv5 & YOLOv8 Integration**: Real-time object and hand detection using pre-trained models.
+- **OpenCV**: Handles external camera streams and frame processing.
+- **SocketIO / HTTP Streams**: Streams live video feed to the Android device.
+- **Threading & Multiprocessing**: Ensures fast response during real-time processing.
+- **BraceletController Module**: Custom-designed to provide tactile feedback using object coordinates.
+- **Experimental Hand/Object Navigation Logic**: Detects object and hand location to guide user movement toward target objects.
 
 ---
 
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+## 👥 Contributors
+
+| Name                      | Role & Contributions                                                                 |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| **Monika Munusamy** 👩‍💻 | Android App Development: CameraX integration, UI/UX design, Text-to-Speech, Navigation, and internal camera setup. |
+| **Simge Ünlüsoy** 👩‍🔬   | Flask Backend Development: YOLO object detection, API design, external camera, real-time video streaming, and tactile bracelet activation. |
 
 ---
 
-## Contribution
-Contributions are welcome! Please fork the repository and submit a pull request with your changes. For major changes, open an issue first to discuss what you would like to change.
+## ⚖️ License
+
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
 
 ---
 
-## Credits
-- **Author**: Monika Munusamy
-- **Acknowledgments**: Contributors to the libraries and APIs used in this project.
+## 🤝 Contribution Guidelines
+
+Contributions are welcome! 💪
+
+- Fork the repo
+- Create a new branch
+- Commit your changes
+- Submit a pull request
+
+For big changes, open an issue to discuss first!
+
+---
+
+## 🙏 Credits
+
+- **Authors**: Monika Munusamy & Simge Ünlüsoy
+- **Project Origin**: Developed as part of our **# VisionMate 👁️📱
+
+VisionMate is an Android application designed to enable blind and visually impaired individuals to interact with their surroundings more independently. The application provides real-time object detection, navigation, shopping list preparation, and bracelet navigation based on user input. VisionMate uses advanced machine learning models to detect objects in the environment, delivering this information to users through visual, auditory, or tactile feedback — ensuring a safer and more confident daily experience.
+
+This project was completed as part of our **Master's study project**, integrating Android development and Flask-based backend intelligence to solve real-world accessibility challenges.
+
+---
+
+## ✨ Features
+
+1. **🔍 Real-Time Object Detection**
+
+   - Utilizes TensorFlow Lite models for detecting objects and hands in real-time.
+   - Supports custom object detection models for specific use cases.
+
+2. **🤖 Assistive Functionalities**
+
+   - Designed to help users interact with the environment through object recognition.
+
+3. **🗺️ Google Maps Integration**
+
+   - Includes location-based services such as navigation and mapping.
+
+4. **📸 Camera Features**
+
+   - Uses Camera2 API for capturing and processing live video streams.
+   - **External Camera Integration**: Flask backend is used to handle external camera functionalities.
+
+5. **🔗 Interaction with Flask Backend**
+
+   - The VisionMate Android app communicates with the Flask backend for external camera processing and object detection.
+   - The backend provides endpoints for video streaming, object detection, and activating a tactile bracelet for guidance.
+
+---
+
+## 💪 Installation
+
+### 📋 Prerequisites
+
+- [Android Studio Arctic Fox](https://developer.android.com/studio) or later.
+- An Android device with minimum SDK version **26**.
+- Python 3.8 or later for running the Flask backend.
+
+### ⚙️ Set Up the Flask Backend
+
+1. Clone the Flask backend repository:
+
+   ```bash
+   git clone https://github.com/Smgunlusoy/Flask_app.git
+   cd Flask_app/tactile-guidance-backend
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Run the Flask server:
+
+   ```bash
+   python app.py
+   ```
+
+   Flask server starts at `http://0.0.0.0:8000` (or `http://localhost:8000`).
+
+### 📲 Set Up the Android App
+
+1. Clone the VisionMate repository:
+
+   ```bash
+   git clone https://github.com/monikamunusamy/VisionMate-Project.git
+   cd VisionMate-Project
+   ```
+
+2. Open the project in Android Studio:
+
+   - `File -> Open` → Select the project directory.
+
+3. Sync Gradle:
+
+   - Make sure all Gradle dependencies sync successfully.
+
+4. Build and Run:
+
+   - Connect an Android device.
+   - Hit the `Run` button in Android Studio.
+
+---
+
+## 🔄 Flask ↔️ Android Integration
+
+The VisionMate app communicates with the Flask backend via RESTful APIs for **external camera** tasks:
+
+### 📺 `/video_feed`
+
+- Streams real-time camera feed with object overlays.
+
+### 🧐 `/detected_objects`
+
+- Method: `GET`
+- Returns a JSON array of detected objects.
+  Example:
+  ```json
+  ["hand", "bottle"]
+  ```
+
+### 🧴 `/activate_bracelet`
+
+- Method: `POST`
+- Guides the bracelet toward a selected object.
+- Example request:
+  ```json
+  {
+    "object_name": "bottle"
+  }
+  ```
+
+---
+
+## 🔍 Flask Backend Details
+
+Backend repo: [Flask_app](https://github.com/Smgunlusoy/Flask_app)
+
+### Key Contributions and Technologies Used:
+
+- **Flask Web Framework**: Hosts all the RESTful API endpoints.
+- **YOLOv5 & YOLOv8 Integration**: Real-time object and hand detection using pre-trained models.
+- **OpenCV**: Handles external camera streams and frame processing.
+- **SocketIO / HTTP Streams**: Streams live video feed to the Android device.
+- **Threading & Multiprocessing**: Ensures fast response during real-time processing.
+- **BraceletController Module**: Custom-designed to provide tactile feedback using object coordinates.
+- **Experimental Hand/Object Navigation Logic**: Detects object and hand location to guide user movement toward target objects.
+
+---
+
+## 👥 Contributors
+
+| Name                      | Role & Contributions                                                                 |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| **Monika Munusamy** 👩‍💻 | Android App Development: CameraX integration, UI/UX design, Text-to-Speech, Navigation, and internal camera setup. |
+| **Simge Ünlüsoy** 👩‍🔬   | Flask Backend Development: YOLO object detection, API design, external camera, real-time video streaming, and tactile bracelet activation. |
+
+---
+
+## ⚖️ License
+
+This project is licensed under the **MIT License**. See the `LICENSE` file for details.
+
+---
+
+## 🤝 Contribution Guidelines
+
+Contributions are welcome! 💪
+
+- Fork the repo
+- Create a new branch
+- Commit your changes
+- Submit a pull request
+
+For big changes, open an issue to discuss first!
+
+---
+
+## 🙏 Credits
+
+- **Authors**: Monika Munusamy & Simge Ünlüsoy
+- **Project Origin**: Developed as part of our **Cognitive Science - Master of Science**, under the Study Project module.
+- **Special thanks** to open-source libraries, academic mentors, and the accessibility tech community 💙
+
+**, under the Study Project module.
+- **Special thanks** to open-source libraries, academic mentors, and the accessibility tech community 💙
+
