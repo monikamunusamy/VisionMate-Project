@@ -285,6 +285,20 @@ The VisionMate app communicates with the Flask backend via RESTful APIs for **ex
 
 ---
 
+---
+
+## 📽️ Demo Video
+
+Watch VisionMate in action!  
+▶️ [Click here to view on YouTube](https://youtube.com/shorts/ovVDhRDd8_o)
+
+Or preview below:
+
+[![Watch the demo](https://img.youtube.com/vi/ovVDhRDd8_o/0.jpg)](https://youtube.com/shorts/ovVDhRDd8_o)
+
+---
+
+
 ## 🔍 Flask Backend Details
 
 Backend repo: [Flask_app](https://github.com/Smgunlusoy/Flask_app)
